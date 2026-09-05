@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pydantic[email]
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt==4.0.1  # passlib 1.7.4's bcrypt backend breaks on bcrypt>=4.1 (no __about__.__version__)
+python-multipart
+httpx
+python-dotenv
+numpy

@@ -1,0 +1,21 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# SQLite databases (local dev data, never shared)
+*.db
+
+# Secrets - never commit real credentials
+.env
+
+# Trained RL model artifacts (binary, sent separately, not versioned)
+backend/app/ai/models/
+
+# Node / frontend
+node_modules/
+dist/
+
+# OS junk
+.DS_Store
+Thumbs.db
