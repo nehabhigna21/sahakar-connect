@@ -11,5 +11,9 @@ export default defineConfig({
       usePolling: true,
       interval: 300,
     },
+    // Allows the Cloudflare Tunnel's *.trycloudflare.com host through -
+    // Vite blocks unrecognized Host headers by default (DNS-rebinding
+    // protection). Fine for a temporary demo tunnel.
+    allowedHosts: true,
   },
 })

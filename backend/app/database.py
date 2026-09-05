@@ -1,16 +1,24 @@
+import os
+
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# SQLite is just a single file on disk (bluedot.db) - no separate database
-# server to install or run, which is why it's ideal for a prototype.
-SQLALCHEMY_DATABASE_URL = "sqlite:///./bluedot.db"
+load_dotenv()
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    # SQLite normally only allows the thread that created a connection to use
-    # it; FastAPI can handle a request on a different thread, so we relax that.
-    connect_args={"check_same_thread": False},
-)
+# SQLite is a single file on disk - great for local dev, but most hosts'
+# free tiers wipe local files on every restart/redeploy. In production,
+# set DATABASE_URL to a real Postgres connection string instead.
+SQLALCHEMY_DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./bluedot.db")
+
+# Render (and some other hosts) hand out URLs starting "postgres://",
+# but SQLAlchemy's psycopg2 dialect needs "postgresql://".
+if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args=connect_args)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

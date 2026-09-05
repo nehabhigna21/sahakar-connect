@@ -1,3 +1,5 @@
+import os
+
 from fastapi.middleware.cors import CORSMiddleware
 #CORSMiddleware — need to let a browser-based frontend call this API
 
@@ -32,9 +34,19 @@ app = FastAPI(title="Bluedot API", version="0.1.0")
 # Browsers block a webpage on one origin (localhost:5173, our React app)
 # from calling an API on another origin (localhost:8000, this server)
 # unless the server explicitly allows it - that's what CORS is for.
+# FRONTEND_URL is the deployed frontend's real origin (set as an env var
+# on the host, e.g. https://sahakar-connect.vercel.app) - kept separate
+# from localhost/tunnel origins so those still work in local dev too.
+_frontend_url = os.environ.get("FRONTEND_URL", "")
+_extra_origins = [_frontend_url] if _frontend_url else []
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", *_extra_origins],
+    # Cloudflare Tunnel gives the frontend a fresh *.trycloudflare.com
+    # origin each time it's started - regex covers that without needing
+    # a restart every time the tunnel URL changes.
+    allow_origin_regex=r"https://.*\.trycloudflare\.com",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
