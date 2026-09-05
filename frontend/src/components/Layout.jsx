@@ -1,12 +1,16 @@
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useLocationSearch } from "../context/LocationSearchContext";
+import Avatar from "./Avatar";
+import * as api from "../api";
+import { PiggyBank } from "lucide-react";
 
 const NAV = {
   customer: [
     { to: "/customer/book", label: "Book a service" },
     { to: "/customer/bookings", label: "My bookings" },
     { to: "/customer/payments", label: "My payments" },
-    { to: "/customer/grievances", label: "File a grievance" },
   ],
   worker: [
     { to: "/worker/profile", label: "My profile" },
@@ -25,7 +29,15 @@ const NAV = {
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const { zone, setZone, search, setSearch } = useLocationSearch();
   const navigate = useNavigate();
+  const [piggybankBalance, setPiggybankBalance] = useState(null);
+
+  useEffect(() => {
+    if (user.role === "worker") {
+      api.getMyWorkerProfile().then((p) => setPiggybankBalance(p.piggybank_balance));
+    }
+  }, [user.role]);
 
   function handleLogout() {
     logout();
@@ -38,7 +50,32 @@ export default function Layout() {
     <div className="app-shell">
       <header className="topbar">
         <div className="brand">Sahakar Connect</div>
+
+        {user.role === "customer" && (
+          <div className="topbar-search">
+            <input
+              className="location-input"
+              value={zone}
+              onChange={(e) => setZone(e.target.value)}
+              title="Your service zone"
+              placeholder="Zone / location"
+            />
+            <input
+              className="search-input"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search services..."
+            />
+          </div>
+        )}
+
         <nav>
+          {user.role === "worker" && piggybankBalance !== null && (
+            <NavLink to="/worker/piggybank" className="piggybank-pill">
+              <PiggyBank size={16} /> Rs.{piggybankBalance}
+            </NavLink>
+          )}
+          <Avatar name={user.name} />
           <span className="who">
             {user.name} · {user.role}
           </span>

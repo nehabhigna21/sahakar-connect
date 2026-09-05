@@ -51,6 +51,22 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return schemas.Token(access_token=token, user=schemas.UserOut.model_validate(user))
 
 
+@router.post("/reset-password", response_model=schemas.Token)
+def reset_password(payload: schemas.PasswordResetRequest, db: Session = Depends(get_db)):
+    """Prototype-only reset: no emailed verification token, just email +
+    new password. Logs the user in immediately after, same as register."""
+    user = db.query(models.User).filter(models.User.email == payload.email).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="No account with that email")
+
+    user.password_hash = auth.hash_password(payload.new_password)
+    db.commit()
+    db.refresh(user)
+
+    token = auth.create_access_token(user.id)
+    return schemas.Token(access_token=token, user=schemas.UserOut.model_validate(user))
+
+
 @router.get("/me", response_model=schemas.UserOut)
 def read_current_user(current_user: models.User = Depends(auth.get_current_user)):
     return current_user

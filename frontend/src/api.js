@@ -43,6 +43,9 @@ export async function login(email, password) {
   return res.json();
 }
 
+export const resetPassword = (email, new_password) =>
+  request("/auth/reset-password", { method: "POST", body: { email, new_password }, auth: false });
+
 export const getMe = () => request("/auth/me");
 export const updateMyAddress = (address) =>
   request("/auth/me", { method: "PATCH", body: { address } });
@@ -75,6 +78,7 @@ export const completeBooking = (bookingId) =>
 // ---------- reviews ----------
 export const createReview = (payload) =>
   request("/reviews", { method: "POST", body: payload });
+export const listMyReviews = () => request("/reviews/mine");
 
 // ---------- payments ----------
 export const listMyPayments = () => request("/payments/me");

@@ -7,6 +7,29 @@ from ..database import get_db
 router = APIRouter(prefix="/reviews", tags=["reviews"])
 
 
+@router.get("/mine", response_model=list[schemas.ReviewOut])
+def my_reviews(
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Reviews the current user is party to - as the customer who wrote
+    them, or the worker they're about. Lets the UI know which completed
+    bookings are already rated."""
+    query = db.query(models.Review).join(
+        models.Booking, models.Review.booking_id == models.Booking.id
+    )
+    if current_user.role == "customer":
+        query = query.filter(models.Booking.customer_id == current_user.id)
+    elif current_user.role == "worker":
+        profile = auth.find_worker_profile(db, current_user.id)
+        if profile is None:
+            return []
+        query = query.filter(models.Booking.worker_id == profile.id)
+    else:
+        return []
+    return query.all()
+
+
 @router.post("", response_model=schemas.ReviewOut)
 def create_review(
     payload: schemas.ReviewCreate,

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import * as api from "../../api";
 import StatusBadge from "../../components/StatusBadge";
 
@@ -29,9 +30,14 @@ export default function MyBookings() {
               <StatusBadge status={b.status} />
             </div>
             {b.match_reason && <div className="muted">{b.match_reason}</div>}
-            {b.status === "matched" && (
-              <button onClick={() => handleComplete(b.id)}>Mark completed</button>
-            )}
+            <div className="actions">
+              {b.status === "matched" && (
+                <button onClick={() => handleComplete(b.id)}>Mark completed</button>
+              )}
+              <Link to={`/grievances?booking_id=${b.id}`}>
+                <button className="danger">File a grievance</button>
+              </Link>
+            </div>
           </li>
         ))}
         {bookings.length === 0 && <li className="muted">No bookings yet.</li>}

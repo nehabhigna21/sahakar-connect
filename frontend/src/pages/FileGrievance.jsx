@@ -1,8 +1,14 @@
 import { useState } from "react";
-import * as api from "../../api";
+import { useSearchParams } from "react-router-dom";
+import * as api from "../api";
 
 export default function FileGrievance() {
-  const [form, setForm] = useState({ description: "", against_worker_id: "", booking_id: "" });
+  const [searchParams] = useSearchParams();
+  const [form, setForm] = useState({
+    description: "",
+    against_worker_id: "",
+    booking_id: searchParams.get("booking_id") || "",
+  });
   const [message, setMessage] = useState("");
 
   async function handleSubmit(e) {

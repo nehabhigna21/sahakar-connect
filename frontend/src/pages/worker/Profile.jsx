@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import * as api from "../../api";
+import { useAuth } from "../../context/AuthContext";
+import Avatar from "../../components/Avatar";
+import { Star } from "lucide-react";
 
 export default function Profile() {
+  const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState(null);
   const [message, setMessage] = useState("");
@@ -37,9 +41,15 @@ export default function Profile() {
 
   return (
     <section className="card">
-      <h1 className="page-title">My profile</h1>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4 }}>
+        <Avatar name={user.name} size={44} />
+        <h1 className="page-title" style={{ margin: 0 }}>
+          {user.name}
+        </h1>
+      </div>
       <p className="rating-badge" style={{ marginBottom: 12 }}>
-        ⭐ {profile.rating_avg.toFixed(1)} ({profile.rating_count} reviews)
+        <Star size={14} fill="#ca8a04" color="#ca8a04" /> {profile.rating_avg.toFixed(1)} (
+        {profile.rating_count} reviews)
       </p>
       <p>
         Verification: <strong>{profile.verification_status}</strong>

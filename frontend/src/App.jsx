@@ -1,13 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { LocationSearchProvider } from "./context/LocationSearchContext";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import FileGrievance from "./pages/FileGrievance";
 
 import BookService from "./pages/customer/BookService";
 import CustomerBookings from "./pages/customer/MyBookings";
 import CustomerPayments from "./pages/customer/MyPayments";
-import FileGrievance from "./pages/customer/FileGrievance";
 
 import WorkerProfile from "./pages/worker/Profile";
 import WorkerBookings from "./pages/worker/MyBookings";
@@ -37,7 +39,11 @@ function RequireAuth() {
   const { user, loading } = useAuth();
   if (loading) return <p className="center">Loading...</p>;
   if (!user) return <Navigate to="/login" replace />;
-  return <Layout />;
+  return (
+    <LocationSearchProvider>
+      <Layout />
+    </LocationSearchProvider>
+  );
 }
 
 function AppRoutes() {
@@ -48,13 +54,14 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route element={<RequireAuth />}>
         <Route index element={<RoleHome />} />
+        <Route path="grievances" element={<FileGrievance />} />
 
         <Route path="customer/book" element={<BookService />} />
         <Route path="customer/bookings" element={<CustomerBookings />} />
         <Route path="customer/payments" element={<CustomerPayments />} />
-        <Route path="customer/grievances" element={<FileGrievance />} />
 
         <Route path="worker/profile" element={<WorkerProfile />} />
         <Route path="worker/bookings" element={<WorkerBookings />} />

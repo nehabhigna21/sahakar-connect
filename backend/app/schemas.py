@@ -37,6 +37,16 @@ class UserAddressUpdate(BaseModel):
     address: str
 
 
+class PasswordResetRequest(BaseModel):
+    """Prototype-only: no email verification step exists yet, so this
+    resets the password for any account by email alone. Fine for a
+    demo; would need an emailed reset token before real users touch
+    it."""
+
+    email: EmailStr
+    new_password: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"

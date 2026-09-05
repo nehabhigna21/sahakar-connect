@@ -1,17 +1,22 @@
 import { useEffect, useState } from "react";
 import * as api from "../../api";
 import { CategoryIcon } from "../../categoryIcons";
+import { useLocationSearch } from "../../context/LocationSearchContext";
 
 export default function BookService() {
+  const { zone, search } = useLocationSearch();
   const [categories, setCategories] = useState([]);
   const [selected, setSelected] = useState(null);
-  const [zone, setZone] = useState("Zone-1");
   const [isEmergency, setIsEmergency] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     api.listCategories().then(setCategories);
   }, []);
+
+  const visibleCategories = categories.filter((c) =>
+    c.name.toLowerCase().includes(search.trim().toLowerCase())
+  );
 
   async function handleBook(e) {
     e.preventDefault();
@@ -38,10 +43,12 @@ export default function BookService() {
   return (
     <section className="card">
       <h1 className="page-title">What do you need done?</h1>
-      <p className="page-subtitle">Pick a service to book a verified cooperative worker.</p>
+      <p className="page-subtitle">
+        Booking in <strong>{zone}</strong> - change your zone in the top bar.
+      </p>
 
       <div className="category-grid">
-        {categories.map((c) => (
+        {visibleCategories.map((c) => (
           <div
             key={c.id}
             className={"category-card" + (selected?.id === c.id ? " selected" : "")}
@@ -55,17 +62,17 @@ export default function BookService() {
           </div>
         ))}
         {categories.length === 0 && <p className="muted">No services available yet.</p>}
+        {categories.length > 0 && visibleCategories.length === 0 && (
+          <p className="muted">No services match "{search}".</p>
+        )}
       </div>
 
       {selected && (
         <form onSubmit={handleBook} className="grid-form" style={{ marginTop: 20 }}>
           <p>
-            Booking <strong>{selected.name}</strong> - Rs.{selected.base_price}
+            Booking <strong>{selected.name}</strong> in <strong>{zone}</strong> - Rs.
+            {selected.base_price}
           </p>
-          <label>
-            Zone
-            <input value={zone} onChange={(e) => setZone(e.target.value)} />
-          </label>
           <label className="checkbox-row">
             <input
               type="checkbox"
